@@ -251,10 +251,21 @@ section { padding-block: clamp(72px, 11vw, 128px); }
   filter: drop-shadow(0 8px 14px rgba(19, 36, 27, .2)); rotate: 4deg; }
 .stamp svg { display: block; width: 100%; height: auto; }
 @media (max-width: 820px) {
-  .postcard { grid-template-columns: 1fr; grid-template-areas: "head" "msg" "stamp" "note"; }
-  .pc-statement { padding-bottom: 32px; }
-  .pc-stamp { border-left: 0; border-top: 1px dashed rgba(42, 73, 57, .3); padding-top: 32px; justify-items: center; }
-  .pc-note { border-left: 0; }
+  /* Handy: kompakte Postkarte, Briefmarke klebt schräg an der oberen rechten Ecke */
+  .gifts-pc { padding-block: 72px 64px; }
+  .gifts-pc .wrap { padding-inline: 18px; }
+  .postcard { --px: 22px; grid-template-columns: 1fr; grid-template-rows: auto; grid-template-areas: "head" "msg" "note"; }
+  .postcard::before { inset: 8px; }
+  .pc-head { padding: 28px 78px 0 var(--px); gap: 14px; }
+  .pc-head .pc-lead { padding-right: 0; margin-right: -56px; font-size: 1.02rem; }
+  .pc-title { font-size: 2.75rem; }
+  .pc-stamp { position: absolute; top: -52px; right: -6px; padding: 0; border: 0; z-index: 2; }
+  .pc-post { width: 84px; height: auto; }
+  .pc-post .stamp { position: static; width: 84px; padding: 6px; rotate: 5deg; background-size: 8px 8px; background-position: -4px -4px; }
+  .pc-statement { display: block; padding: 18px var(--px) 20px; font-size: 2.05rem; }
+  .pc-statement::before { display: none; }
+  .pc-note { display: block; padding: 18px var(--px) 28px; border-left: 0; font-size: .98rem; }
+  .pc-note::before { background: none; border-top: 1px dashed rgba(42, 73, 57, .35); height: 0; }
 }
 
 /* Q&A */
@@ -666,7 +677,7 @@ nav.scrolled { box-shadow: 0 10px 30px -22px rgba(19, 36, 27, .5); }
   var groups = [
     '.invite .wrap > *', '.dress-head > *', '.dress-body > *', '.story-grid figure', '.story-text > *',
     '.sec-head > *', '.strip .photo', '.timeline li', '.venue-text > *', '.venue-photo', '.way',
-    '.quote .wrap > *', '.postcard', '.faq-side > *', '.qa details', 'footer .wrap > *'
+    '.quote .wrap > *', '.faq-side > *', '.qa details', 'footer .wrap > *'
   ];
   var items = [];
   groups.forEach(function (sel) {
