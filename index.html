@@ -226,21 +226,21 @@ section { padding-block: clamp(72px, 11vw, 128px); }
 
 
 /* Geschenke – Postkarte auf dem Strandfoto */
-.gifts-pc { position: relative; isolation: isolate; overflow: hidden; padding-block: clamp(90px, 12vw, 150px); }
+.gifts-pc { position: relative; isolation: isolate; overflow: hidden; padding-block: clamp(64px, 7vw, 100px); }
 /* Das Foto wird per Skript so ausgerichtet, dass das Paar komplett hinter der Postkarte steht. */
 .pc-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 58%; z-index: -2; }
 .gifts-pc::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(18, 33, 25, .35); }
-.postcard { --px: clamp(26px, 5vw, 56px); position: relative; max-width: 900px; margin-inline: auto; background: var(--ivory); color: var(--text);
+.postcard { --px: clamp(24px, 4vw, 44px); position: relative; max-width: 800px; margin-inline: auto; background: var(--ivory); color: var(--text);
   display: grid; grid-template-columns: 1.2fr .8fr; grid-template-rows: auto 1fr; grid-template-areas: "head stamp" "msg note"; box-shadow: 0 40px 80px -40px rgba(10, 20, 15, .7); }
 .postcard::before { content: ""; position: absolute; inset: 12px; border: 1px solid var(--line); pointer-events: none; }
 .postcard > * { min-width: 0; position: relative; }
 /* Obere Zeile: Überschrift links, Briefmarke rechts – untere Zeile: Kernsatz links, Hinweis rechts. Die Linien liegen auf einer Höhe. */
 .pc-head { grid-area: head; padding: var(--px) var(--px) 30px; display: grid; gap: 18px; align-content: start; }
-.pc-title { font: italic 400 clamp(3.4rem, 7vw, 5.6rem)/.95 var(--serif2); letter-spacing: -.025em; color: var(--forest); }
+.pc-title { font: italic 400 clamp(3rem, 5.6vw, 4.4rem)/.95 var(--serif2); letter-spacing: -.025em; color: var(--forest); }
 .pc-lead { font: 400 1.2rem/1.65 var(--sans2); color: var(--text-soft); max-width: 30ch; }
 .pc-stamp { grid-area: stamp; padding: calc(var(--px) - 8px) var(--px) 30px; display: grid; justify-items: end; align-content: start; border-left: 1px dashed rgba(42, 73, 57, .3); }
 .pc-statement, .pc-note { display: grid; align-content: center; }
-.pc-statement { grid-area: msg; padding: 30px var(--px) var(--px); font: 400 clamp(2.1rem, 3.8vw, 3rem)/1.1 var(--serif2); letter-spacing: -.015em; color: var(--forest); }
+.pc-statement { grid-area: msg; padding: 30px var(--px) var(--px); font: 400 clamp(1.9rem, 3vw, 2.4rem)/1.1 var(--serif2); letter-spacing: -.015em; color: var(--forest); }
 .pc-note { grid-area: note; padding: 30px var(--px) var(--px); font: 400 1.0625rem/1.7 var(--sans2); color: var(--text); border-left: 1px dashed rgba(42, 73, 57, .3); }
 .pc-statement::before, .pc-note::before { content: ""; position: absolute; top: 0; left: var(--px); right: var(--px); height: 1px; background: var(--line); }
 /* Briefmarke mit Flugzeug auf dem Weg zur Insel, darüber ein Poststempel */
@@ -730,19 +730,42 @@ nav.scrolled { box-shadow: 0 10px 30px -22px rgba(19, 36, 27, .5); }
   var gSec = document.getElementById('geschenke'), gImg = document.getElementById('pcBg'), gCard = gSec && gSec.querySelector('.postcard');
   function placeGift() {
     if (!gSec || !gImg || !gCard) return;
-    var W = gImg.clientWidth;
-    var desktop = window.matchMedia('(min-width: 821px)').matches;
-    gCard.style.minHeight = desktop ? Math.round(605 * (W / 1500) + 80) + 'px' : '';
-    var H = gSec.clientHeight;
-    var s = Math.max(W / 1500, H / 2000), imgH = 2000 * s;
-    var cy = gCard.offsetTop + gCard.offsetHeight / 2;
-    var y = Math.min(0, Math.max(H - imgH, cy - 1118 * s));
+    gCard.style.minHeight = '';
+    var W = gImg.clientWidth, H = gSec.clientHeight;
+    var s = Math.max(W / 1500, H / 2000), imgH = 2000 * s, y;
+    if (H <= 790 * s) {
+      // Genug Breite: nur den Abendhimmel über den Köpfen zeigen (unterste Himmelskante kurz über dem Kopf)
+      y = Math.round(H - 790 * s);
+    } else {
+      // Schmal (Handy, kleines Tablet): Paar genau hinter die Postkarte legen
+      var desktop = window.matchMedia('(min-width: 821px)').matches;
+      if (desktop) {
+        gCard.style.minHeight = Math.round(605 * s + 80) + 'px';
+        H = gSec.clientHeight; s = Math.max(W / 1500, H / 2000); imgH = 2000 * s;
+      }
+      var cy = gCard.offsetTop + gCard.offsetHeight / 2;
+      y = cy - 1118 * s;
+    }
+    y = Math.min(0, Math.max(H - imgH, y));
     gImg.style.objectPosition = '50% ' + Math.round(y) + 'px';
   }
-  placeGift();
-  window.addEventListener('resize', placeGift);
+
+  // Zitat: Paar im Fackel-Foto (Köpfe bei y≈850 von 2000 px) mit Luft nach oben zeigen, Füße dürfen abgeschnitten sein
+  var qSec = document.querySelector('.quote');
+  function placeQuote() {
+    if (!qSec) return;
+    var W = qSec.clientWidth, H = qSec.clientHeight, BH = H * 1.2;   // Hintergrund ist 20 % höher (Tiefenwirkung)
+    var s = Math.max(W / 1500, BH / 2000);
+    var y = 0.1 * H + 0.26 * H - 850 * s;                              // Köpfe bei etwa 26 % der sichtbaren Höhe
+    y = Math.min(0, Math.max(BH - 2000 * s, y));
+    qSec.style.setProperty('--pos', '50% ' + Math.round(y) + 'px');
+  }
+
+  function placeAll() { placeGift(); placeQuote(); }
+  placeAll();
+  window.addEventListener('resize', placeAll);
   if (gImg && !gImg.complete) gImg.addEventListener('load', placeGift);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeGift);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeAll);
 })();
 </script>
 
