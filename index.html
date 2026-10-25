@@ -761,7 +761,18 @@ nav.scrolled { box-shadow: 0 10px 30px -22px rgba(19, 36, 27, .5); }
     qSec.style.setProperty('--pos', '50% ' + Math.round(y) + 'px');
   }
 
-  function placeAll() { placeGift(); placeQuote(); }
+  // Startbild: Paar steht links im Foto (x≈355–745 von 2000 px). Auf schmalen Bildschirmen den Ausschnitt auf beide zentrieren.
+  var hSec = document.querySelector('.hero');
+  function placeHero() {
+    if (!hSec) return;
+    var W = hSec.clientWidth, H = hSec.clientHeight, BH = H * 1.2;
+    var s = Math.max(W / 2000, BH / 1333), imgW = 2000 * s, imgH = 1333 * s;
+    var x = Math.min(0, Math.max(W - imgW, W / 2 - 550 * s));
+    var y = Math.min(0, Math.max(BH - imgH, (BH - imgH) * 0.6));
+    hSec.style.setProperty('--pos', Math.round(x) + 'px ' + Math.round(y) + 'px');
+  }
+
+  function placeAll() { placeGift(); placeQuote(); placeHero(); }
   placeAll();
   window.addEventListener('resize', placeAll);
   if (gImg && !gImg.complete) gImg.addEventListener('load', placeGift);
